@@ -1,3 +1,4 @@
+import 'package:call_2507/models/user.dart';
 import 'package:flutter/material.dart';
 
 class Todo {
@@ -5,12 +6,17 @@ class Todo {
   String description;
   bool done;
   int userId;
+  String date;
+  User user;
+
+  Todo.empty();
 
   Todo({
     this.id,
     @required this.description,
     this.done,
     this.userId,
+    this.date,
   });
 
   Todo.fromMap(Map<String, dynamic> obj) {
@@ -18,6 +24,10 @@ class Todo {
     description = obj['description'];
     done = obj['done'] == 'T';
     userId = obj['userId'];
+    date = obj['date'];
+    if (obj.containsKey('username')) {
+      user = User.empty()..name = obj['username'];
+    }
   }
 
   Map<String, dynamic> toMap() {
@@ -26,6 +36,7 @@ class Todo {
       'description': description,
       'done': done ?? false ? 'T' : 'F',
       'userid': userId,
+      'date': date,
     };
   }
 }
