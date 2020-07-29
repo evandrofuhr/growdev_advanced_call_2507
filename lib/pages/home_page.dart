@@ -47,7 +47,13 @@ class _HomePageState extends State<HomePage> {
             value: user.id,
           ),
         )
-        .toList();
+        .toList()
+          ..add(
+            DropdownMenuItem(
+              child: Text('todos'),
+              value: 0,
+            ),
+          );
   }
 
   @override
@@ -71,15 +77,16 @@ class _HomePageState extends State<HomePage> {
                     builder: (context, snapshot) {
                       final users = snapshot.data;
                       return DropdownButtonFormField<int>(
-                        value: null,
+                        value: _todo.userId ?? 0,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'usuário',
                         ),
                         items: _getDropdownItens(users),
-                        onChanged: (value) => print(value),
+                        onChanged: (value) =>
+                            setState(() => _todo.userId = value),
                         validator: (value) =>
-                            value == null ? 'Selecione um usuário' : null,
+                            value <= 0 ? 'Selecione um usuário' : null,
                         onSaved: (newValue) => _todo.userId = newValue,
                       );
                     },
@@ -110,7 +117,7 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: FutureBuilder<List<Todo>>(
                 initialData: <Todo>[],
-                future: _todoRepository.getTodos(),
+                future: _todoRepository.getTodos(userId: _todo.userId ?? 0),
                 builder: (context, snapshot) {
                   final _todos = snapshot.data;
                   return ListView.builder(
@@ -118,6 +125,7 @@ class _HomePageState extends State<HomePage> {
                     itemBuilder: (context, index) {
                       final _item = _todos[index];
                       return ListTile(
+                        leading: Icon(Icons.person),
                         title: Text(
                           _item?.user?.name != null
                               ? _item.user.name

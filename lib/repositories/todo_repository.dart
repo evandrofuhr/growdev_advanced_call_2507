@@ -28,19 +28,33 @@ class TodoRepository {
     return rows > 0;
   }
 
-  Future<List<Todo>> getTodos() async {
+  Future<List<Todo>> getTodos({int userId = 0}) async {
     var retorno = <Todo>[];
     var db = await _dbHelper.obtemDB();
-    var result = await db.rawQuery('''
-        select 
-          todo.*, 
-          user.nome as username
-        from 
-          todo
-        left join user on user.id = todo.userid
-        order by
-          todo.id
-      ''');
+
+    var _sql = '''
+      select 
+        todo.*, 
+        user.nome as username
+      from 
+        todo
+      left join user on user.id = todo.userid
+      where
+        1=1
+    ''';
+
+    if (userId > 0) {
+      _sql += 'and (todo.userid is null or todo.userid = ?)';
+    }
+    _sql += 'order by todo.id desc';
+
+    List<Map<String, dynamic>> result;
+
+    if (userId > 0) {
+      result = await db.rawQuery(_sql, [userId]);
+    } else {
+      result = await db.rawQuery(_sql);
+    }
     if (result.isNotEmpty) {
       for (var todo in result) {
         retorno.add(Todo.fromMap(todo));
